@@ -1,0 +1,5 @@
+[
+  {"model": "products.product", "pk": 1, "fields": {"name": "Худі чорного кольору  з ініціалами adidas Original", "description": "М'яка тканина для світшотів. Стиль і комфорт - це образ життя.", "price": "1200.00", "quantity": 10, "image": "products_images/Adidas-hoodie_Mu6TtkN.png", "category": 1}},
+  {"model": "products.product", "pk": 2, "fields": {"name": "Синя куртка The North Face", "description": "Гладка тканина, водонепроникне покриття. Легкий і теплий  пуховий наповнювач.", "price": "2900.00", "quantity": 5, "image": "products_images/Blue-jacket-The-North-Face_96IU4wS.png", "category": 1}},
+  {"model": "products.product", "pk": 3, "fields": {"name": "Коричневий спортивний oversized-топ ASOS DESIGN", "description": "Матеріал із плюшевою текстурой. Зручний та мягкий", "price": "980.00", "quantity": 6, "image": "products_images/Brown-top-ASOS-DESIGN_wsSMH64.png", "category": 1}}
+]
