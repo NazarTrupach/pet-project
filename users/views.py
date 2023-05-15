@@ -1,11 +1,12 @@
 from django.shortcuts import render, HttpResponseRedirect
 from django.contrib import auth, messages
+from django.views.generic.base import TemplateView
 from django.urls import reverse, reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView
 from django.contrib.messages.views import SuccessMessageMixin
 
 from users.forms import UserLoginForm, UserRegistrationForm, UserProfileForm
-from users.models import User
+from users.models import User, EmailVerification
 from products.models import Basket
 from common.views import TitleMixin
 
@@ -52,42 +53,22 @@ class UserProfileView(TitleMixin, UpdateView):
         return context
 
 
+class EmailVerificationView(TitleMixin, TemplateView):
+    title = 'Store - Підтвердження електронної пошти'
+    template_name = 'users/email_verification.html'
+
+    def get(self, request, *args, **kwargs):
+        code = kwargs['code']
+        user = User.objects.get(email=kwargs['email'])
+        email_verifications = EmailVerification.objects.filter(user=user, code=code)
+        if email_verifications.exists() and not email_verifications.first().is_expired():
+            user.is_verified_email = True
+            user.save()
+            return super(EmailVerificationView, self).get(request, *args, **kwargs)
+        else:
+            return HttpResponseRedirect(reverse('index'))
+
+
 def logout(request):
     auth.logout(request)
     return HttpResponseRedirect(reverse('index'))
-
-
-
-# def registration(request):
-#     if request.method == 'POST':
-#         form = UserRegistrationForm(data=request.POST)
-#         if form.is_valid():
-#             form.save()
-#             messages.success(request, "You've been successfully registered")
-#             return HttpResponseRedirect(reverse('users:login'))
-#     else:
-#         form = UserRegistrationForm()
-#     context = {'form': form}
-#     return render(request, 'users/registration.html', context)
-
-
-
-# @login_required
-# def profile(request):
-#     if request.method == 'POST':
-#         form = UserProfileForm(instance=request.user, data=request.POST, files=request.FILES)
-#         if form.is_valid():
-#             form.save()
-#             return HttpResponseRedirect(reverse('users:profile'))
-#         else:
-#             print(form.errors)
-#     else:
-#         form = UserProfileForm(instance=request.user)
-#
-#     context = {
-#         'title': 'Store - Профіль ',
-#         'form': form,
-#         'baskets': Basket.objects.filter(user=request.user),
-#     }
-#     return render(request, 'users/profile.html', context)
-#
