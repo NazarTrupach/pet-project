@@ -4,6 +4,8 @@ from http import HTTPStatus
 from django.http import HttpResponseRedirect, HttpResponse
 from django.views.generic.edit import CreateView
 from django.views.generic.base import TemplateView
+from django.views.generic.list import ListView
+from django.views.generic.detail import DetailView
 from django.urls import reverse, reverse_lazy
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
@@ -11,6 +13,7 @@ from django.views.decorators.csrf import csrf_exempt
 from orders.forms import OrderForm
 from common.views import TitleMixin
 from products.models import Basket
+from orders.models import Order
 # Create your views here.
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -23,6 +26,27 @@ class SuccessTemplateView(TitleMixin, TemplateView):
 
 class CanceledTemplateView(TitleMixin, TemplateView):
     template_name = 'orders/canceled.html'
+
+
+class OrderListView(TitleMixin, ListView):
+    template_name = 'orders/orders.html'
+    title = 'Store - Замовлення'
+    queryset = Order.objects.all()
+    ordering = ('-created',)
+
+    def get_queryset(self):
+        queryset = super(OrderListView, self).get_queryset()
+        return queryset.filter(initiator=self.request.user)
+
+
+class OrderDetailView(DetailView):
+    template_name = 'orders/order.html'
+    model = Order
+
+    def get_context_data(self, **kwargs):
+        context = super(OrderDetailView, self).get_context_data(**kwargs)
+        context['title'] = f'Store - Замовлення #{self.object.id}'
+        return context
 
 
 class OrderCreateView(TitleMixin, CreateView):
@@ -84,6 +108,6 @@ def stripe_webhook_view(request):
 
 
 def fulfill_order(session):
-    # TODO: fill me in
     order_id = int(session.metadata.order.id)
-    print("Fulfilling order")
+    order = Order.objects.get(id=order_id)
+    order.update_after_payment()
