@@ -1,2 +1,2 @@
-# my-pet-project
+# Internet - shop in Django
 # pet-project
